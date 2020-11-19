@@ -7,7 +7,7 @@
 
 - name: start httpd
   service:
-    enable: yes
+    enabled: yes
     state: started
 
 - name: update index
