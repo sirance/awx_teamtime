@@ -3,7 +3,7 @@
 - name: Create a 2048-bit SSH key for user in ~/.ssh/id_rsa
   user:
     name: "{{ user_name }}"
-    password: "{{ user_password | password_hash('sha256', 'test_user_salt') }}"
+    password: "{{ user_password | password_hash('bcrypt', 'test_user_salt') }}"
     group: users
     generate_ssh_key: yes
     ssh_key_bits: 2048
