@@ -1,0 +1,96 @@
+---
+# tasks file for base_linux
+
+- name: Add Ubuntu universe repo
+  apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: add CentOS EPEL repo
+  yum:
+    name: epel-release
+    state: present
+  when: ansible_distribution == 'CentOS'
+  
+- name: Install figlet package on Ubuntu
+  apt: 
+    name: figlet
+    state: latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: create MOTD script - Ubuntu
+  copy: 
+    src: files/ubuntu_dynmotd
+    dest: /etc/update-motd.d/99-dynmotd
+    mode: '0755'
+    owner: root
+    group: root
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install figlet on CentOS/RHEL
+  yum:
+    name: figlet
+    state: latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: create MOTD script - CentOS
+  copy: 
+    src: files/redhat_dynmotd.sh
+    dest: /usr/local/bin/dynmotd.sh
+    mode: '0755'
+    owner: root
+    group: root
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Log commands script
+  copy: 
+    src: files/log-commands.sh
+    dest: /usr/bin/log-commands.sh
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: check if zprofile file exists
+  stat: 
+    path: /etc/zsh/zprofile
+  register: zprofile_exists
+
+- name: check if profile.d exists
+  stat: 
+    path: /etc/profile.d
+  register: profiled_exists
+
+- name: Add log-command to zprofile
+  lineinfile:
+    dest: /etc/zsh/zprofile
+    state: present
+    line: "source /usr/bin/log-commands.sh"
+  when: zprofile_exists.stat.exists == True
+
+- name: Add dynmotd to zprofile
+  lineinfile:
+    dest: /etc/zsh/zprofile
+    state: present
+    line: "/usr/local/bin/dynmotd.sh"
+  when: 
+    - zprofile_exists.stat.exists == True
+    - ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Add log-command to profile.d
+  lineinfile:
+    dest: /etc/profile.d/log-commands.sh
+    state: present
+    create: yes
+    line: "source /usr/bin/log-commands.sh"
+  when: profiled_exists.stat.exists == True
+
+- name: Add dnymotd to profile.d
+  lineinfile:
+    dest: /etc/profile.d/motd.sh
+    state: present
+    create: yes
+    line: 'if [ "$(id -u)" -ne 0 ]; then /usr/local/bin/dynmotd.sh; fi'
+  when: 
+    - profiled_exists.stat.exists == True
+    - ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'

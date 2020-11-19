@@ -1,0 +1,11 @@
+---
+# tasks file for sudoers
+- name: Add AD group to sudoers
+  lineinfile:
+    dest: /etc/sudoers.d/10_ad_access
+    line: '"%{{ sudo_admin_group }}" ALL=(ALL) ALL'
+    create: yes
+    owner: root
+    group: root
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s

@@ -1,0 +1,4 @@
+---
+# handlers file for base_linux
+- name: Update CA Trust
+  shell: /bin/update-ca-trust
