@@ -6,7 +6,3 @@
       become: true
     - role: sudoers
       become: true
-    - role: dynamic-motd
-      become: true
-    - role: netdata
-      become: true
