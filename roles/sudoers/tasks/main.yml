@@ -1,9 +1,9 @@
 ---
 # tasks file for sudoers
-- name: Add AD group to sudoers
+- name: Add user to sudoers
   lineinfile:
-    dest: /etc/sudoers.d/10_ad_access
-    line: '"%{{ sudo_admin_group }}" ALL=(ALL) ALL'
+    dest: /etc/sudoers.d/10_access
+    line: '"{{ user_name }}" ALL=(ALL) ALL'
     create: yes
     owner: root
     group: root

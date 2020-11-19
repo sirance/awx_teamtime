@@ -2,9 +2,11 @@
 - hosts: all
   become: true
   roles:
+    - role: users
+      become: true
+    - role: sudoers
+      become: true
     - role: dynamic-motd
       become: true
     - role: netdata
-      become: true
-    - role: website
       become: true
